@@ -52,11 +52,32 @@ Post Service:
 | GET    | /posts |                            | get all posts                          |
 | POST   | /posts | { "title" : "post-title" } | create a new post with the given title |
 
-- create a simple node js app
+- create a simple node js app in posts directory
 - listening on post 4000
-- store data in memory for now in a simple posts {id, title}
+- store data in memory for now in a simple javascript object `posts {id, title}`
 - test using postman
 
+Comments Service:
+| Method | Route               | Body                           | Comments                                     |
+|--------|---------------------|--------------------------------|----------------------------------------------|
+| GET    | /posts/:id/comments |                                | Get all comments associated with postId = id |
+| POST   | /posts/:id/comments | { "content" : "comment-data" } | Add a new comment to post with postId = id   |
+
+- create a simple node js app in comments directory
+- listening on post 4001
+- store data in memory for now in a simple javascript object `commentsByPostId {postId : [{commentId, content}, {commentId, content}...] }`
+- test using postman
+
+Front-end client:
+- Components
+  - App
+    - Post List
+      - Comment List
+      - Comment Create
+    - Post Create
+- Start by creating the App component(App.js)
+- Add it as a component to index.js
+- Instruct react to render it in `root` div in index.html
 
 
 
