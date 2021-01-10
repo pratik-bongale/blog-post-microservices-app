@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import Axios from 'axios';
 
 
 export default () => {
@@ -10,7 +10,7 @@ export default () => {
         // we want to send the values to our post service when user submits the title
         event.preventDefault();
 
-        await axios.post("http://localhost:4000/posts", {title}); //send title in the body of post request
+        await Axios.post("http://localhost:4000/posts", {title}); //send title in the body of post request
 
         setTitle('');
     }
