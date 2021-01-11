@@ -8,7 +8,8 @@ export default () => {
     const [posts, setPosts] = useState({});
 
     const fetchPosts = async () => {
-        const allPosts = await axios.get('http://localhost:4000/posts');
+        //change this from reaching out to PostService(4000) to Query Service(4002)
+        const allPosts = await axios.get('http://localhost:4002/posts');
         setPosts(allPosts.data);
     };
 
@@ -23,6 +24,7 @@ export default () => {
     // console.log(posts);  // looks good
 
     // posts is a JS object, Object.values will turn it into an array of objects
+    // once we have the Query Service working we should populate the commentList using that service instead of the Comment Service
     const renderedPosts = Object.values(posts).map(post => {
         return (<div className="card" 
                     style={{width: '30%', marginBottom: '20px'}}
@@ -30,7 +32,8 @@ export default () => {
                 >
                     <div className="card-body">
                         <h3>{post.title}</h3>
-                        <CommentList postId={post.postId} />
+                        {/* <CommentList postId={post.postId} />     */}
+                        <CommentList comments={post.comments} />
                         <CommentCreate postId={post.postId} />
                     </div>
                 </div>);

@@ -135,7 +135,34 @@ A. For each resource in our application we create a new service. Here we have tw
 ### Solution
 - We are going to use the 2nd approach of async communication
 - Build an event bus from scratch and a new service to join the data from post and comments service and then do a single get request from this Query Service
-- We do have off-the-shelf solutions for event bus like: **Kafka, RabbitMQ** etc
+- We do have off-the-shelf solutions for event bus like: **Kafka, RabbitMQ** etc which receive events and publish them to subscribers
+
+### Event Bus
+- Our implementation will be super simple. When user submits a post, the Post Service will make a POST call to event bus, attaching some data to this request and that EventBus service will make POST call to all other services in the application.
+- Set up
+  ```
+  mkdir event-bus
+  cd event-bus
+  npm init -y
+  npm install nodemon axios cors express
+  ```
+- Event bus is just another service which relays events btw other services, so create a new node service and define a post endpoint POST "/events". 
+- In this endpoint, we take the event object sent in the request and pass it on to PostService, CommentService and QueryService to their "/events" endpoints.
+  ```Javascript
+  const event = req.body;
+  axios.post('http://localhost:4000/events', event);
+  axios.post('http://localhost:4001/events', event);
+  axios.post('http://localhost:4002/events', event);   
+  ```
+- Make sure you keep the format of the event body consistent. Here we use: Event = {type: PostCreated, {id: 'adskj2', title:'some post'}}
+- Add code to PostCreate and COmmentService to handle the incoming event from Event-bus
+- Create another service(node js app) called QueryService with end points
+  - GET /posts  
+  - POST /events  
+  - data is maintained in a simple javascript object posts[]
+    `posts[id] = {id: 'asg123s', title: 'some post', comments: [{id: '12nbh2', content: 'comment!'}, ...] }`
+- Modify the React application so that component **PostList** now fetches posts from QueryService and passes the comment list obtained with each post to **CommentList** component. 
+
 
 
 
