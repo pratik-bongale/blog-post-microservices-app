@@ -36,9 +36,9 @@ app.post('/posts', async (req, res) => {
 // handle the event received from the event bus
 app.post('/events', (req, res) => {
     console.log('Event received: ', req.body.type);
-    res.send({});
+    res.end();
 });
 
 app.listen(4000, () => {
-    console.log('listening on port 4000');
+    console.log('Post Service listening on port 4000');
 });

@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-posts = {};  // {id: 'asg123s', title: 'some post', comments: [{id: '12nbh2', content: 'comment!'}, ...] }
+posts = {};  // posts['asg123s'] = {postId: 'asg123s', title: 'some post', comments: [{id: '12nbh2', content: 'comment!'}, ...] }
 
 
 app.get('/posts', (req, res) => {
@@ -23,15 +23,24 @@ app.post('/events', (req, res) => {
     } 
 
     if(type === 'CommentCreated') {
-        const { id, postId, content } = data;
+        const { id, postId, content, status } = data;
  
         const post = posts[postId];
-        post.comments.push({id, content});
+        post.comments.push({ id, content, status });
+    }
+
+    if(type === 'CommentUpdated') {
+        const { id, postId, content, status } = data;
+ 
+        const post = posts[postId];
+        const comment = post.comments.find( c => { return c.id === id; } );
+        comment.status = status;
+        comment.content = content;  // it is possible that comment and content both were updated
     }
 
     console.log(posts);
 
-    res.send({});
+    res.end();
 
 });
 
