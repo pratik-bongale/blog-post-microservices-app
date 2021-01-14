@@ -38,7 +38,17 @@ export default ( { comments } ) => {
     const commentList = comments;   // list of comments associated with the post
 
     const renderedComments = commentList.map( comment => {
-        return <li key={comment.id}>{comment.content}</li>;
+        let content = "";
+
+        if(comment.status === "approved") {
+            content = comment.content;
+        } else if(comment.status === "rejected") {
+            content = "Comment removed by admin";
+        } else if(comment.status === "pending") {
+            content = "Waiting for moderation";
+        }
+
+        return <li key={comment.id}>{content}</li>;
     });
 
     return (
