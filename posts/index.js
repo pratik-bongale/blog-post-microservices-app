@@ -28,7 +28,9 @@ app.post('/posts', async (req, res) => {
     };
 
     // whenever a post is created we want to emit an async event to event bus
-    await axios.post("http://localhost:4005/events", { type: 'PostCreated', data: { postId, title } });
+    await axios.post("http://localhost:4005/events", { type: 'PostCreated', data: { postId, title } }).catch((err) => {
+        console.log(err.message);
+    });
 
     res.status(201).send(posts[postId]);
 });

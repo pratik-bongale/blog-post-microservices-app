@@ -31,6 +31,8 @@ app.post('/posts/:id/comments', async (req, res) => {
     await axios.post("http://localhost:4005/events", { 
         type: 'CommentCreated', 
         data: { id: commentId, postId: postId, content, status: 'pending' } 
+    }).catch((err) => {
+        console.log(err.message);
     });
 
     res.status(201).send(comments);
@@ -54,6 +56,8 @@ app.post('/events', async (req, res) => {
             data: {
                 id, postId, status, content
             }
+        }).catch((err) => {
+            console.log(err.message);
         });
     }    
 
