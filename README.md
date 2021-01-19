@@ -183,7 +183,65 @@ A. For each resource in our application we create a new service. Here we have tw
 - Solution: maintain a event-data store where event bus stores all the events it received and any service can ask the event-bus for all events starting from a time-stamp where it failed.
 - In our case, we simply store all events in a array and add a `app.get('/events')` route in Event-bus Service and then in queryService we add code to fetch all the events from event-bus in the start-up `app.listen()` method.
 
+-----------------
+### Docker
+- Why? You can containerize your applications. Makes it easy to install and run by packaging all dependancies in a docker image file. All you have to do is take that image and run `docker run -it <image-alias> <cmd>`
+- It is an ecosystem: a set of tools to create and run containers. Tools are below:
+  - Docker Client(CLI) - we issue docker commands in CLI
+  - Docker Server(Daemon) - tool for creating images, running containers etc (runs in the background)
+  - Docker Image - single file with all deps and config to run a prog. 
+  - Docker Hub - 
+  - Docker Compose.
+- Container? Instance of an image(runs a prog). We use one image to run multiple instances of that program in seperate containers.
+- How does it work? `docker run hello-world`
+  - Enter this command of docker cli (local)
+  - docker cli reaches out to docker server (local)
+  - docker server looks in its image cache if we already have an image wt this name (local)
+  - if image not found in local cache, docker server reaches out to docker hub (remote image repository)
+  - if image found on docker hub, download that image and keep a copy in local image cache (remote -> local)
+  - spin up a container which has a small program to print hello world
+- Namespace: we can divide resources such as hdd, memory, network among different programs. This process is called namespacing
+- A container is a namespace which gives a partition to hdd, mem, network, cpu to only those programs in image file and runs those programs using the run commands defined in the image file itself.
+- The image has a file system snapshot, and a set of commands defining how to run those programs. files from the snapshot are copied into the dedicated hdd in the container and then run on the dedicated cpu in the container.
+- Commands:
+  ```bash
+  docker run hello-world  // prints hello world and terminates
+  docker run busybox echo hi there    // prints "hi there" and terminates
+  docker create busybox echo hi there // returns a long container id like ksjdhb2i3bwebhhwsdku32y4834712
+  docker start ksjdhb2i3bwebhhwsdku32y4834712   // starts the container i.e run the command in that image
+  docker ps   // shows all containers currently running
+  docker ps --all //shows all containers you ever created and then stopped them
+  docker system prune   //removes the space tkaen by all the containers which are in stopped state
+  docker stop <container-id>  // gracefuly shut down a process
+  docker kill <container-id>  // force shut down a process    
+  docker exec -it <container-id> redis-cli  // runs a command inside a already running container(redis server), -it gives an ability to get a command prompt after executing that command
+  docker logs <container-id>  // displays what is happening in a already running container
+  ```
+- Creating a docker image file
+  - Specify a base image | run some commands to install additional prog | specify a command to run on startup
+  - Create a file Dockerfile in the folder you want to make an image of
+  - Inside the Dockerfile
+    ```
+    FROM alpine                   #base image, which has a set of linux tools like ls, ps, echo etc
+    RUN apk add --update redis    #apk is a pkg mgr like npm, this comes from alpine img
+    CMD ["redis-server"]          #the startup command when a user does a docker run image-file
+    ```
+  - Save the file and execute `docker build .`
+  - Several intermediate containers are created while building a docker image
+  - The order of commands used in docker file matter
+  - You can create images from a container
+- Port mapping (localhost and docker)
+  - You need to establish a port mapping to ensure that requests made to your server(incoming) to a certain port are directed to the container we want.
+  - Use `docker run -p 5000:8080 container-id`: here all requests GET/POST to localhost:5000 will be redirected to port 8000 on the server.
 
-
+### Kubernetes
+- Why? To manage multiple containers, pass messages between containers, scale(add more containers). For our blog application, we should maintain each service in its own container. Doing it this way, we can make our service in any language or environment and it would be easy to install on any server system.
+- Terminologies:
+  - Kubernetes cluster: Collection of nodes + a master to manage them
+  - Node: VM that will run our containers, a cluster can have one or more Nodes
+  - Pod: a running container, in reality a pod can run multiple containers
+  - Deployment: Monitors ser of pods, restarts them if they crash
+  - Service: Provides a simple URL to access a running container, this is the common bus that talks to a set of pods like the PostService service-bus will connect all PostService pods.
+  - Config file: tells kubernetes about diff deployments, pods, services(objects) written in YAML
 
 
