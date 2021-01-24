@@ -244,4 +244,78 @@ A. For each resource in our application we create a new service. Here we have tw
   - Service: Provides a simple URL to access a running container, this is the common bus that talks to a set of pods like the PostService service-bus will connect all PostService pods.
   - Config file: tells kubernetes about diff deployments, pods, services(objects) written in YAML
 
+### Kubernetes config file
+- Tells kubernetes about different pods, services and deployments (objects) in our cluster
+- Written in YAML syntax (similar to JSON, without curly bracecs)
+- A simple yaml file looks as below
+  ```YAML
+  apiVersion: v1
+  kind: Pod     # what do you want?
+  metadata:
+    name: posts # name of the object
+  spec:         # define config for the object
+    containers:
+      - name: posts # we can provide a list of containers
+        image: pratikbongale/posts:0.0.1
+  ```
+- This tells kubernetes that you want the cluster to run a Pod which has a single container and that when you spin up this container use the given docker image
+- Kubernetes commands
+  ```bash
+  kubectl get pods  # similar to docker ps
+  kubectl exec -it [podname] [cmd]  # run a command inside the pod like docker exec
+  kubectl logs
+  kubectl delete [podname]
+  kubectl apply -f <filename>.yaml  # apply this config to the current cluster
+  kubectl describe pod [podname]  # prints more info about this pod
+  ```
+- we dont usually create pods directly in config file as shown above. we create deployments where we specify config for pods
+- Deployment: manager of multiple pods, ensures if a pod goes down its containers are restarted, also helps when we want to update our app from v1 to v2
+  ```yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: posts-depl
+  spec:           # config for the depl
+    replicas: 1   # number of pods you want at any given time
+    selector:     # select which pods(defined in template below) you want me to run, by matching labels
+      matchLabels:  
+        app: posts
+      template:   # define pods and label them
+        metadata:
+          labels:
+            app: posts  
+        spec:     # config for pods
+          containers:
+            - name: posts
+              image: pratikbongale/posts:0.0.1
+  ```
+- To apply deployment use `kubectl apply -f posts-depl.yaml`
+- all other commands for pods are also applicable for deployments. If we delete a pod, the deployment will automatically recreate it.. 
+- How to update your apps and let kubernetes know?
+  - instead of specifying a version for your image, put pratikbongale/posts:latest
+  - when docker sees the latest tag, after looking in your local machine, it will go to docker hub and look for your image
+  - make your modification, build a new image and then push the image to docker hub.. `docker push pb/posts:latest`
+  - commands to push to dockerhub: 
+    ```bash
+    docker tag local-image:tagname new-repo:tagname
+    docker login
+    docker push new-repo:tagname
+    ```
+  - run `kubectl rollout restart deployment posts-depl`. This will automatically take the latest image from docker hub which has your modifications
+- Notes about debugging:
+  - whenever you change your code, you need to rebuild the docker image using `docker build -t pb/posts` and push that new image to docker hub
+  - whenever you make any change to the config file for pods/deployment (posts-depl.yaml), you need to apply that change to the kubernetes cluster using `kubectl apply -f posts-depl.yaml`
+  - whenever you push new image to docker hub and your local image name does not match the remote image name, you need to:
+    ```
+    docker login
+    docker tag pratikbongale/posts psb4346/posts
+    docker push psb4346/posts
+    ```
+  - In my case, my local image is tagged as pratikbongale/posts and my docker id is psb4346, so the above command will create a new repository for posts.
+  - Process: 
+    - Modify code, build docker image, push to docker hub, restart the deployment(so that it pulls the latest copy from docker hub)
 
+### Kubernetes services
+- whenever we are thinking about any communication/networking between pods(ex. event bus) or with the outside world(ex. browser) we are going to callout our service object.
+- create another yaml config file to define a service and apply it to our cluster
+- 

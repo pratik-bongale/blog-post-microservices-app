@@ -28,7 +28,8 @@ app.post('/posts', async (req, res) => {
     };
 
     // whenever a post is created we want to emit an async event to event bus
-    await axios.post("http://localhost:4005/events", { type: 'PostCreated', data: { postId, title } }).catch((err) => {
+    // now as we are using a event service to reach an event bus, we need to change our ip address
+    await axios.post("http://event-bus-srv:4005/events", { type: 'PostCreated', data: { postId, title } }).catch((err) => {
         console.log(err.message);
     });
 
@@ -42,5 +43,6 @@ app.post('/events', (req, res) => {
 });
 
 app.listen(4000, () => {
+    console.log('v1.1')
     console.log('Post Service listening on port 4000');
 });
